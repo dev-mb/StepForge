@@ -1,0 +1,101 @@
+{
+  "name": "stepforge",
+  "displayName": "StepForge",
+  "description": "Run JSON-defined text macros.",
+  "version": "0.1.0",
+  "publisher": "dev-mb",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "commands": [
+      {
+        "command": "stepforge.runPicker",
+        "title": "StepForge: Makro auswaehlen"
+      },
+      {
+        "command": "stepforge.run",
+        "title": "StepForge: Makro nach Name ausfuehren"
+      },
+      {
+        "command": "stepforge.openFolder",
+        "title": "StepForge: Makro-Ordner oeffnen",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "stepforge.refresh",
+        "title": "StepForge: Liste aktualisieren",
+        "icon": "$(refresh)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "stepforge",
+          "title": "StepForge",
+          "icon": "media/stepforge.svg"
+        }
+      ]
+    },
+    "views": {
+      "stepforge": [
+        {
+          "id": "stepforge.macroList",
+          "name": "StepForge"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "stepforge.macroList",
+        "contents": "Noch keine Makros vorhanden.\n[Makro-Ordner öffnen](command:stepforge.openFolder)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "stepforge.runPicker",
+          "group": "1_modification@99",
+          "when": "editorTextFocus"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "stepforge.refresh",
+          "when": "view == stepforge.macroList",
+          "group": "navigation"
+        },
+        {
+          "command": "stepforge.openFolder",
+          "when": "view == stepforge.macroList",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "StepForge",
+      "properties": {
+        "stepforge.macroFolder": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Pfad zum Ordner mit den Makro-Dateien. Leer = interner Storage-Ordner (per Befehl **StepForge: Makro-Ordner oeffnen** erreichbar)."
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "stepforge.runPicker",
+        "key": "ctrl+alt+m",
+        "when": "editorTextFocus"
+      }
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1"
+  }
+}
