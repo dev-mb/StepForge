@@ -24,7 +24,7 @@
       },
       {
         "command": "stepforge.openFolder",
-        "title": "StepForge: Makro-Ordner oeffnen",
+        "title": "StepForge: Makro-Ordner öffnen",
         "icon": "$(folder-opened)"
       },
       {
@@ -46,7 +46,7 @@
       "stepforge": [
         {
           "id": "stepforge.macroList",
-          "name": "StepForge"
+          "name": "StepFroge"
         }
       ]
     },
@@ -87,6 +87,12 @@
         }
       }
     },
+    "jsonValidation": [
+      {
+        "fileMatch": "**/dev-mb.stepforge/**/*.json",
+        "url": "./schemas/macro.schema.json"
+      }
+    ],
     "keybindings": [
       {
         "command": "stepforge.runPicker",
@@ -96,6 +102,7 @@
     ]
   },
   "devDependencies": {
-    "@types/node": "^25.9.1"
+    "@types/node": "^25.9.1",
+    "@vscode/vsce": "^3.9.2"
   }
 }

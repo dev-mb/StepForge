@@ -1,6 +1,7 @@
 const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
+const { runMacro } = require('./interpreter');
 
 const MACRO_EXT = '.json';
 
@@ -54,10 +55,9 @@ class MacroTreeProvider {
     const macros = listMacros(getMacroFolder(this.context));
     return macros.map(m => {
       const item = new vscode.TreeItem(m.name, vscode.TreeItemCollapsibleState.None);
-      item.description = m.file;                 // ausgegraut hinter dem Namen
+      item.description = m.file;
       item.tooltip = m.description || m.file;
       item.iconPath = new vscode.ThemeIcon('zap');
-      // Klick auf den Eintrag -> spaeter Ausfuehrung, jetzt nur durchgereicht.
       item.command = { command: 'stepforge.run', title: 'Ausfuehren', arguments: [m.file] };
       return item;
     });
@@ -81,7 +81,6 @@ function activate(context) {
   context.subscriptions.push(watcher);
 
   context.subscriptions.push(
-    // Dropdown ueber die Command-Palette
     vscode.commands.registerCommand('stepforge.runPicker', async () => {
       const files = listMacros(getMacroFolder(context));
       if (files.length === 0) {
@@ -94,19 +93,33 @@ function activate(context) {
       if (pick) vscode.commands.executeCommand('stepforge.run', pick.file);
     }),
 
-    // Per Name (Klick in der Liste, Hotkey, Palette) - Ausfuehrung folgt spaeter
     vscode.commands.registerCommand('stepforge.run', async (name) => {
-      vscode.window.showInformationMessage(
-        'StepForge: run("' + (name || '') + '") - Ausfuehrung folgt spaeter.');
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showWarningMessage('StepForge: Kein aktiver Editor.');
+        return;
+      }
+      const filePath = path.join(getMacroFolder(context), name);
+      let macro;
+      try {
+        macro = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      } catch (e) {
+        vscode.window.showErrorMessage(`StepForge: Makro konnte nicht geladen werden – ${e instanceof Error ? e.message : e}`);
+        return;
+      }
+      try {
+        await runMacro(editor, macro);
+        vscode.window.showInformationMessage(`StepForge: „${macro.name || name}" ausgeführt.`);
+      } catch (e) {
+        vscode.window.showErrorMessage(`StepForge: Fehler in „${macro.name || name}" – ${e instanceof Error ? e.message : e}`);
+      }
     }),
 
-    // Makro-Ordner im Datei-Manager oeffnen
     vscode.commands.registerCommand('stepforge.openFolder', async () => {
       const f = getMacroFolder(context);
       await vscode.env.openExternal(vscode.Uri.file(f));
     }),
 
-    // Liste manuell aktualisieren (Button oben in der View)
     vscode.commands.registerCommand('stepforge.refresh', () => treeProvider.refresh())
   );
 }

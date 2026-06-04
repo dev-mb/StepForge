@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "StepForge Makro",
+  "description": "Deklaratives Text-Makro für die StepForge VS-Code-Extension.",
+  "type": "object",
+  "required": ["steps"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Anzeigename des Makros in der Sidebar und im QuickPick."
+    },
+    "description": {
+      "type": "string",
+      "description": "Optionale Kurzbeschreibung (erscheint im QuickPick als Detail)."
+    },
+    "steps": {
+      "type": "array",
+      "description": "Liste der Schritte – werden sequenziell ausgeführt.",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "Löscht alle Zeilen, die zur Regex passen.",
+            "required": ["op", "pattern"],
+            "additionalProperties": false,
+            "properties": {
+              "op":      { "type": "string", "const": "deleteLinesMatching" },
+              "pattern": { "type": "string", "description": "Regulärer Ausdruck (ohne Slashes)." },
+              "flags":   { "type": "string", "description": "Regex-Flags, z. B. \"i\" für case-insensitive.", "default": "" }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Behält nur Zeilen, die zur Regex passen – alle anderen werden gelöscht.",
+            "required": ["op", "pattern"],
+            "additionalProperties": false,
+            "properties": {
+              "op":      { "type": "string", "const": "keepLinesMatching" },
+              "pattern": { "type": "string", "description": "Regulärer Ausdruck (ohne Slashes)." },
+              "flags":   { "type": "string", "default": "" }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Suchen & Ersetzen auf dem gesamten Dokumentinhalt (Regex, alle Treffer).",
+            "required": ["op", "find", "with"],
+            "additionalProperties": false,
+            "properties": {
+              "op":    { "type": "string", "const": "replace" },
+              "find":  { "type": "string", "description": "Suchmuster (Regex ohne Slashes)." },
+              "with":  { "type": "string", "description": "Ersetzungstext; Gruppen über $1, $2 …" },
+              "flags": { "type": "string", "description": "Regex-Flags; 'g' wird automatisch ergänzt.", "default": "" }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Führt einen beliebigen VS-Code-Befehl aus.",
+            "required": ["op", "id"],
+            "additionalProperties": false,
+            "properties": {
+              "op":   { "type": "string", "const": "command" },
+              "id":   { "type": "string", "description": "Befehlsname, z. B. \"editor.action.formatDocument\"." },
+              "args": { "type": "array", "description": "Optionale Argumente für den Befehl.", "items": {} }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
