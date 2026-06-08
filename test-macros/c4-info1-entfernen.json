@@ -1,0 +1,7 @@
+{
+  "name": "C4-Logfile Info1 in Zeile entfernen",
+  "description": "Kuerzt den Info-Block je Zeile zu ' (...) '.",
+  "steps": [
+    { "op": "replace", "find": "(,[0-9]{3})\\[(.*)\\s-\\s", "with": "$1 (...) " }
+  ]
+}

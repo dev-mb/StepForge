@@ -1,0 +1,7 @@
+{
+  "name": "Zeilenumbruch CRLF zu LF",
+  "description": "Ersetzt Windows-Zeilenenden (CRLF) durch Unix-Zeilenenden (LF).",
+  "steps": [
+    { "op": "replace", "find": "\\r\\n", "with": "\n" }
+  ]
+}

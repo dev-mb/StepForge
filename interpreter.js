@@ -2,12 +2,14 @@ const vscode = require('vscode');
 
 let outputChannel;
 
+// Erstellt den OutputChannel "StepForge" beim ersten Zugriff und cached ihn danach.
 function getOutputChannel() {
   if (!outputChannel) outputChannel = vscode.window.createOutputChannel('StepForge');
   return outputChannel;
 }
 
 // Regex ohne 'g'-Flag – wichtig für zeilenweises .test() (lastIndex-Problem vermeiden)
+// Baut eine Regex für zeilenweises .test() – entfernt das 'g'-Flag (siehe Hinweis oben).
 function lineRegex(pattern, flags) {
   return new RegExp(pattern, (flags || '').replace('g', ''));
 }
@@ -29,15 +31,21 @@ async function filterLines(editor, regex, deleteIfMatch) {
   });
 }
 
+// op-Dispatch-Tabelle: jeder Eintrag ist ein Handler (editor, step) => Promise.
+// Neue Operation = neuer Eintrag hier (siehe CLAUDE.md "Kernidee: op-Dispatch").
 const ops = {
+  // Löscht alle Zeilen, die auf step.pattern matchen.
   async deleteLinesMatching(editor, step) {
     await filterLines(editor, lineRegex(step.pattern, step.flags), true);
   },
 
+  // Behält nur Zeilen, die auf step.pattern matchen, löscht den Rest.
   async keepLinesMatching(editor, step) {
     await filterLines(editor, lineRegex(step.pattern, step.flags), false);
   },
 
+  // Sucht & ersetzt über den gesamten Dokumenttext (nicht zeilenweise),
+  // damit Muster auch über Zeilenumbrüche hinweg greifen. Ergänzt 'g' automatisch.
   async replace(editor, step) {
     let flags = step.flags || '';
     if (!flags.includes('g')) flags += 'g';
@@ -54,12 +62,15 @@ const ops = {
     );
   },
 
+  // Führt einen beliebigen registrierten VS-Code-Command aus (step.id, optionale step.args).
   async command(_editor, step) {
     const args = Array.isArray(step.args) ? step.args : [];
     await vscode.commands.executeCommand(step.id, ...args);
   }
 };
 
+// Führt alle Schritte eines Makros sequenziell aus und protokolliert den Ablauf
+// im OutputChannel. Wirft bei unbekannter op, damit der Aufrufer (try/catch) reagieren kann.
 async function runMacro(editor, macro) {
   const ch = getOutputChannel();
   const steps = macro.steps || [];

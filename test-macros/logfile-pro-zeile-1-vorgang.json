@@ -1,0 +1,7 @@
+{
+  "name": "Logfile pro Zeile 1 Vorgang",
+  "description": "Haengt Folgezeilen (die nicht mit R beginnen) per Tab an die vorherige Zeile an.",
+  "steps": [
+    { "op": "replace", "find": "(\\r\\n|\\n)([^R])", "with": "\t$2" }
+  ]
+}

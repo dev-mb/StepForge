@@ -1,0 +1,7 @@
+{
+  "name": "Log Subzeilen loeschen (Stacktrace)",
+  "description": "Loescht Java-Stacktrace-Folgezeilen (4 Leerzeichen + java/app, oder Tab + at/...).",
+  "steps": [
+    { "op": "deleteLinesMatching", "pattern": "([\\s]{4}(java|app))|(\\t(at|\\.\\.\\.))" }
+  ]
+}
